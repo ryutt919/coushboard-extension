@@ -28,6 +28,6 @@
 
 | 세부 내역 | 수집 팝업 |
 |---|---|
-| ![세부 내역](docs/images/detail.png) | ![수집 팝업](docs/images/popup.png) |
+| <img width="869" height="499" alt="image" src="https://github.com/user-attachments/assets/49ccfde6-df2c-4504-a738-9356b9f3595b" />| ![수집 팝업](docs/images/popup.png) |
 
 
