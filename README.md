@@ -1,4 +1,4 @@
-# coupang-ledger-ext
+# coushboard-extension
 
 쿠팡 주문내역을 연도 구분 없이 가져와 기간별, 카테고리별, 품목별 지출로 보여 주는 Chrome 확장.
 
