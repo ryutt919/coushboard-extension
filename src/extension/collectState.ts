@@ -48,9 +48,49 @@ export function effectiveState(s: CollectState | undefined, now = Date.now()): C
 }
 
 export function progressText(s: CollectState): string {
-  if (s.status === 'running') return `${s.year}년 (${s.yearIndex}/${s.years.length}) ${s.page + 1}페이지 · 이번에 ${s.rows}행 저장`
+  if (s.status === 'running') return `${s.year}년 (${s.yearIndex}/${s.years.length}) ${s.page + 1}페이지, 이번에 ${s.rows}행 저장`
   if (s.status === 'done') return '완료. ' + Object.entries(s.perYear).sort(([a], [b]) => Number(b) - Number(a)).map(([y, n]) => `${y}:${n}`).join(' ') // 최신 연도부터
   if (s.status === 'aborted') return `중단됨. ${s.checkpoint ? `${s.checkpoint.year}년 ${s.checkpoint.page + 1}페이지까지 저장됨` : '저장된 것 없음'}`
   if (s.status === 'error') return `오류: ${s.error ?? ''}`
   return '대기 중'
+}
+
+export type StepState = 'done' | 'current' | 'pending'
+export interface YearStep {
+  year: string
+  state: StepState
+  /** 이 연도에서 저장한 행 수(끝났거나 진행 중일 때) */
+  rows: number
+}
+
+/**
+ * 연도별 진행 칸. 연도는 최신부터 가져오므로 현재 연도 앞은 끝난 것이다(이어서 수집으로 건너뛴 연도 포함).
+ * 연도별 전체 페이지 수는 끝까지 읽어 봐야 알 수 있어서, 퍼센트가 아니라 연도 단위 칸으로 보여 준다.
+ */
+export function yearSteps(s: CollectState): YearStep[] {
+  return s.years.map((year, i) => ({
+    year,
+    rows: s.perYear[year] ?? 0,
+    state: s.status === 'done' || i < s.yearIndex - 1 ? 'done' : i === s.yearIndex - 1 ? 'current' : 'pending',
+  }))
+}
+
+/** 경과 시간: 1:05, 12:30, 1:02:03 */
+export function formatElapsed(ms: number): string {
+  const t = Math.max(0, Math.floor(ms / 1000))
+  const h = Math.floor(t / 3600)
+  const m = Math.floor((t % 3600) / 60)
+  const sec = String(t % 60).padStart(2, '0')
+  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`
+}
+
+/** 마지막 저장 시각: 방금, 7초 전 */
+export function formatAgo(ms: number): string {
+  return ms < 3000 ? '방금' : `${Math.floor(ms / 1000)}초 전`
+}
+
+/** 시작부터 지금까지(진행 중) 또는 마지막 저장까지(끝났거나 멈춘 경우) 걸린 시간 */
+export function elapsedMs(s: CollectState, now = Date.now()): number {
+  if (s.startedAt == null) return 0
+  return (s.status === 'running' ? now : (s.updatedAt ?? now)) - s.startedAt
 }

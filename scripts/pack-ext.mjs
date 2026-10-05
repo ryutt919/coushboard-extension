@@ -1,4 +1,4 @@
-// 확장 배포용 zip 만들기: 빌드 결과(app/)와 실행에 필요한 파일만 묶어 release/ 에 둔다. 사용: npm run pack:ext
+// 확장 배포용 zip 만들기: 빌드 결과(app/)와 실행에 필요한 파일만 묶어 release/ 에 둔다. 사용: npm run pack
 // zip 의 루트에 manifest.json 이 오도록 만든다(압축을 풀면 바로 chrome://extensions 에서 로드 가능).
 import { spawnSync } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
@@ -13,7 +13,7 @@ const stage = resolve(root, 'release/stage')
 const out = resolve(root, `release/coushboard-extension-v${version}.zip`)
 rmSync(resolve(root, 'release'), { recursive: true, force: true })
 mkdirSync(stage, { recursive: true })
-for (const f of ['manifest.json', 'background.js', 'content', 'lib', 'app']) cpSync(resolve(ext, f), resolve(stage, f), { recursive: true })
+for (const f of ['manifest.json', 'background.js', 'content', 'lib', 'icons', 'app']) cpSync(resolve(ext, f), resolve(stage, f), { recursive: true })
 
 // Windows 의 Compress-Archive 는 항목 경로에 역슬래시를 써서 다른 OS 에서 깨지므로, Windows 내장 tar.exe(bsdtar)로 zip 을 만든다(Git Bash 의 GNU tar 와 구별하려고 전체 경로 사용)
 const r =

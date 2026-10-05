@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { DuplicateFileError } from '../../src/lib/backend'
 import { ChromeBackend } from '../../src/lib/chromeBackend'
-import { COLLECT_KEY, effectiveState, IDLE_STATE, progressText, STALE_MS } from '../../src/extension/collectState'
+import { COLLECT_KEY, effectiveState, elapsedMs, formatAgo, formatElapsed, IDLE_STATE, progressText, STALE_MS, yearSteps } from '../../src/extension/collectState'
 import type { OrderRow } from '../../src/lib/types'
 
 // chrome.storage.local 과 chrome.runtime.sendMessage 를 흉내 낸 가짜. 실제 확장 환경은 tests/e2e-ext 에서 본다.
@@ -95,9 +95,30 @@ describe('수집 상태', () => {
   })
 
   it('진행 문구: 페이지는 1부터, 완료는 최신 연도부터', () => {
-    expect(progressText({ ...IDLE_STATE, status: 'running', year: '2025', yearIndex: 2, years: ['2026', '2025'], page: 0, rows: 7 })).toBe('2025년 (2/2) 1페이지 · 이번에 7행 저장')
+    expect(progressText({ ...IDLE_STATE, status: 'running', year: '2025', yearIndex: 2, years: ['2026', '2025'], page: 0, rows: 7 })).toBe('2025년 (2/2) 1페이지, 이번에 7행 저장')
     expect(progressText({ ...IDLE_STATE, status: 'done', perYear: { 2024: 6, 2026: 13, 2025: 13 } })).toBe('완료. 2026:13 2025:13 2024:6')
     expect(progressText({ ...IDLE_STATE, status: 'aborted', checkpoint: { year: '2025', page: 1 } })).toBe('중단됨. 2025년 2페이지까지 저장됨')
     expect(COLLECT_KEY).toBe('collect')
+  })
+
+  it('연도별 진행 칸: 현재 연도 앞은 끝, 뒤는 대기, 완료면 모두 끝', () => {
+    const base = { ...IDLE_STATE, years: ['2026', '2025', '2024'], perYear: { 2026: 13, 2025: 4 } }
+    expect(yearSteps({ ...base, status: 'running', yearIndex: 2 }).map((x) => `${x.year}:${x.state}:${x.rows}`)).toEqual(['2026:done:13', '2025:current:4', '2024:pending:0'])
+    expect(yearSteps({ ...base, status: 'aborted', yearIndex: 2 }).map((x) => x.state)).toEqual(['done', 'current', 'pending'])
+    expect(yearSteps({ ...base, status: 'done', yearIndex: 3 }).map((x) => x.state)).toEqual(['done', 'done', 'done'])
+    expect(yearSteps({ ...IDLE_STATE, status: 'running' })).toEqual([]) // 연도 목록을 읽기 전
+  })
+
+  it('경과 시간과 마지막 저장 문구', () => {
+    expect(formatElapsed(0)).toBe('0:00')
+    expect(formatElapsed(65_000)).toBe('1:05')
+    expect(formatElapsed(12 * 60_000 + 30_000)).toBe('12:30')
+    expect(formatElapsed(3_723_000)).toBe('1:02:03')
+    expect(formatAgo(1_000)).toBe('방금')
+    expect(formatAgo(7_400)).toBe('7초 전')
+    const s = { ...IDLE_STATE, startedAt: 1_000, updatedAt: 41_000 }
+    expect(elapsedMs({ ...s, status: 'running' }, 61_000)).toBe(60_000) // 진행 중이면 지금까지
+    expect(elapsedMs({ ...s, status: 'done' }, 61_000)).toBe(40_000) // 끝났으면 마지막 저장까지
+    expect(elapsedMs(IDLE_STATE)).toBe(0)
   })
 })

@@ -5,19 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>쿠팡 지출 기록</title>
     <style>
-      body { margin: 0; width: 320px; padding: 14px; font: 14px/1.5 "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; color: #15171c; background: #fff; }
-      h1 { font-size: 15px; margin: 0 0 10px; }
+      :root { --ink: #15171c; --muted: #5b6170; --accent: #1f4fd8; --accent-soft: #dbe5fb; --good: #17643f; --good-soft: #e7f5ee; --warn: #8a5300; --warn-soft: #fff4db; --bad: #a02841; --bad-soft: #fdecef; }
+      * { box-sizing: border-box; }
+      body { margin: 0; width: 340px; padding: 14px; font: 14px/1.5 "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; color: var(--ink); background: #fff; }
+      h1 { display: flex; align-items: center; gap: 8px; font-size: 15px; margin: 0 0 10px; }
       button { display: block; width: 100%; height: 40px; margin-top: 8px; border: 1px solid #d5d8df; border-radius: 8px; background: #fff; font: inherit; cursor: pointer; }
-      button.primary { background: #1f4fd8; border-color: #1f4fd8; color: #fff; font-weight: 600; }
-      button[hidden] { display: none; }
-      #status { padding: 8px 10px; border-radius: 8px; background: #f4f5f7; color: #2b2f38; }
-      #msg { color: #a02841; font-size: 13px; margin-top: 6px; }
-      .note { color: #5b6170; font-size: 12px; margin-top: 10px; }
+      button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+      [hidden] { display: none !important; }
+
+      /* 상태 줄: 진행 중이면 도는 표시, 끝나면 색으로 구분 */
+      #status { display: flex; align-items: center; gap: 8px; padding: 9px 11px; border-radius: 8px; background: #f4f5f7; color: #2b2f38; font-weight: 600; }
+      #status[data-status="running"] { background: var(--accent-soft); color: #163ba6; }
+      #status[data-status="done"] { background: var(--good-soft); color: var(--good); }
+      #status[data-status="aborted"] { background: var(--warn-soft); color: var(--warn); }
+      #status[data-status="error"] { background: var(--bad-soft); color: var(--bad); }
+      #spinner { flex: none; width: 14px; height: 14px; border: 2px solid #9db4ee; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite; }
+      #stext { min-width: 0; word-break: keep-all; overflow-wrap: break-word; }
+
+      /* 연도별 진행 칸 */
+      #progress { margin-top: 12px; }
+      #steps { display: flex; gap: 4px; }
+      .step { flex: 1; min-width: 0; text-align: center; font-size: 11px; color: var(--muted); }
+      .bar { height: 10px; border-radius: 5px; background: #e8eaef; overflow: hidden; }
+      .step[data-state="done"] .bar { background: var(--accent); }
+      .step[data-state="current"] .bar { background: repeating-linear-gradient(135deg, var(--accent) 0 8px, #7f9ce8 8px 16px); background-size: 22.6px 22.6px; }
+      #progress[data-status="running"] .step[data-state="current"] .bar { animation: stripes 0.8s linear infinite; }
+      #progress[data-status="aborted"] .step[data-state="current"] .bar, #progress[data-status="error"] .step[data-state="current"] .bar { background: #e0b85c; }
+      .step[data-state="current"] .lab { color: var(--ink); font-weight: 700; }
+      .lab { margin-top: 3px; white-space: nowrap; }
+      .cnt { display: block; font-variant-numeric: tabular-nums; }
+      #wait { color: var(--muted); font-size: 12px; }
+
+      /* 숫자 요약 */
+      #meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0 0; padding: 0; }
+      #meta div { background: #f8f9fb; border-radius: 8px; padding: 6px 8px; text-align: center; }
+      #meta dt { margin: 0; font-size: 11px; color: var(--muted); }
+      #meta dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+      #msg { color: var(--bad); font-size: 13px; margin-top: 6px; }
+      .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes stripes { to { background-position: 22.6px 0; } }
+      @media (prefers-reduced-motion: reduce) { #spinner, #progress .bar { animation: none !important; } }
     </style>
   </head>
   <body>
-    <h1>쿠팡 지출 기록</h1>
-    <div id="status" role="status">불러오는 중…</div>
+    <h1><img src="/icon-32.png" alt="" width="22" height="22" />쿠팡 지출 기록</h1>
+    <div id="status" role="status" data-status="idle"><span id="spinner" hidden aria-hidden="true"></span><span id="stext">불러오는 중…</span></div>
+    <div id="progress" hidden data-status="idle">
+      <div id="steps" role="progressbar" aria-label="연도별 수집 진행" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"></div>
+      <div id="wait" hidden>연도 목록을 읽는 중…</div>
+      <dl id="meta">
+        <div><dt>경과 시간</dt><dd id="elapsed">0:00</dd></div>
+        <div><dt>저장한 행</dt><dd id="rows">0</dd></div>
+        <div><dt>마지막 저장</dt><dd id="ago">-</dd></div>
+      </dl>
+    </div>
     <button id="collect" class="primary" type="button">가져오기 시작</button>
     <button id="resume" class="primary" type="button" hidden>이어서 수집</button>
     <button id="fresh" type="button" hidden>처음부터 다시</button>

@@ -6,6 +6,8 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [react()],
   base: './',
+  // 확장 아이콘 폴더를 public 으로 써서 대시보드 탭 아이콘(favicon)도 같은 파일을 쓴다. 빌드하면 app/ 에 복사된다
+  publicDir: 'extension/icons',
   build: {
     outDir: 'extension/app',
     emptyOutDir: true,

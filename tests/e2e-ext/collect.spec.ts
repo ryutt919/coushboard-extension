@@ -101,8 +101,21 @@ test.describe('확장 수집 (합성 쿠팡 응답)', () => {
     await expect(popup.locator('#status')).toHaveText('대기 중')
     await popup.locator('#collect').click()
     await expect(popup.locator('#status')).toContainText('이번에')
+    // 진행 중에는 눈에 보이는 진행 표시가 있다: 도는 표시, 연도별 칸(진행 중인 칸 하나), 흐르는 경과 시간과 마지막 저장
+    await expect(popup.locator('#spinner')).toBeVisible()
+    await expect(popup.locator('#steps .step')).toHaveCount(3)
+    await expect(popup.locator('#steps .step[data-state="current"]')).toHaveCount(1)
+    await expect(popup.locator('#ago')).toHaveText(/방금|초 전/)
+    const t1 = await popup.locator('#elapsed').innerText()
+    await expect(popup.locator('#elapsed')).not.toHaveText(t1) // 1초마다 갱신되어 시간이 흐른다
+    await expect(popup.locator('#steps')).toHaveAttribute('aria-valuemax', '3')
     await waitStatus('done')
     await expect(popup.locator('#status')).toHaveText('완료. 2026:13 2025:13 2024:6') // 최신 연도부터, 같은 상품 두 줄 포함
+    await expect(popup.locator('#spinner')).toBeHidden()
+    await expect(popup.locator('#steps .step[data-state="done"]')).toHaveCount(3)
+    await expect(popup.locator('#steps')).toHaveAttribute('aria-valuenow', '3')
+    await expect(popup.locator('#rows')).toHaveText(String(EXPECTED))
+    await expect(popup.locator('#status')).toHaveAttribute('data-status', 'done')
 
     expect(mock.calls.map((c) => `${c.y}/${c.p}`)).toEqual(['2026/0', '2026/1', '2026/2', '2025/0', '2025/1', '2025/2', '2024/0'])
     const gaps = mock.calls.slice(1).map((c, i) => c.t - mock.calls[i].t)
@@ -139,6 +152,8 @@ test.describe('확장 수집 (합성 쿠팡 응답)', () => {
     await popup.goto(popupUrl(extId())) // 다시 연다
     await expect(popup.locator('#status')).toContainText('이번에') // 진행 상황이 이어서 보인다
     await expect(popup.locator('#status')).toHaveAttribute('data-status', 'running')
+    await expect(popup.locator('#spinner')).toBeVisible() // 다시 열어도 진행 중 표시가 바로 보인다
+    await expect(popup.locator('#steps .step[data-state="current"]')).toHaveCount(1)
     await expect(popup.locator('#abort')).toBeVisible()
     await expect(popup.locator('#collect')).toBeHidden() // 시작 버튼은 없다
     // 그래도 시작 요청이 오면(다른 창에서 누르는 경우 등) 거절한다

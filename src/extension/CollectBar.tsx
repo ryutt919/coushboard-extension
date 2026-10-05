@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { progressText } from './collectState'
+import { progressText, yearSteps } from './collectState'
 import { useCollectActions, useCollectState } from './useCollect'
 
 /** 쿠팡에서 주문을 가져오는 막대. 상태는 저장소에 있어 이 탭이나 팝업을 닫았다 열어도 그대로 이어서 보인다 */
@@ -9,6 +9,7 @@ export function CollectBar() {
   const [msg, setMsg] = useState<string | null>(null)
   const running = s.status === 'running'
   const canResume = (s.status === 'aborted' || s.status === 'error') && s.checkpoint !== null
+  const steps = yearSteps(s)
 
   async function go(fn: () => Promise<string | null>) {
     setMsg(await fn())
@@ -21,6 +22,26 @@ export function CollectBar() {
         <span role="status" data-testid="collect-status" data-status={s.status} style={{ fontSize: 14, color: 'var(--muted)' }}>
           {progressText(s)}
         </span>
+        {s.status !== 'idle' && s.years.length > 0 && (
+          <span
+            role="progressbar"
+            aria-label="연도별 수집 진행"
+            aria-valuemin={0}
+            aria-valuemax={s.years.length}
+            aria-valuenow={steps.filter((x) => x.state === 'done').length}
+            data-testid="collect-steps"
+            style={{ display: 'flex', gap: 3, width: 120 }}
+          >
+            {steps.map((x) => (
+              <span
+                key={x.year}
+                title={`${x.year}년`}
+                data-state={x.state}
+                style={{ flex: 1, height: 8, borderRadius: 4, background: x.state === 'done' ? 'var(--accent)' : x.state === 'current' ? (running ? 'var(--accent-line)' : 'var(--warn-line)') : 'var(--line-2)' }}
+              />
+            ))}
+          </span>
+        )}
         <span style={{ flex: 1 }} />
         {running ? (
           <button type="button" className="btn sm" data-testid="collect-abort" onClick={() => void go(abort)}>
