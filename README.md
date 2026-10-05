@@ -30,16 +30,3 @@
 5. 확장 아이콘의 팝업에서 **가져오기 시작**을 누름. 주문 760줄 기준 약 5분 걸림.
 6. 팝업의 **대시보드 열기**로 결과를 확인함.
 
-## How to Run
-
-Node 24 이상(`.nvmrc`)이 필요함. 오라클 테스트에는 Python이 필요함.
-
-```
-npm install
-npm run build
-```
-
-- 빌드하면 `extension/app/`이 만들어지고, `extension/` 폴더를 위 3번처럼 로드하면 됨.
-- `npm run pack`은 배포용 zip을 `release/`에 만듦.
-- `npm run verify`는 타입 검사, 린트, 단위 테스트, 확장 코드 테스트, 개인정보 검사를 실행함.
-- `npm run test:e2e`는 확장을 Chromium에 로드해 화면과 수집 시나리오를 실행함. 쿠팡에는 접속하지 않고 합성 응답을 씀.
