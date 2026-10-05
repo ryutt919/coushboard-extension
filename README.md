@@ -23,10 +23,9 @@
 
 세부 내역 / 수집 팝업(진행 중). 아래 화면은 예시(mock) 데이터
 
-| 세부 내역 | 수집 팝업 |
-|---|---|
-| <img width="869" height="499" alt="image" src="https://github.com/user-attachments/assets/49ccfde6-df2c-4504-a738-9356b9f3595b" />| ![수집 팝업](docs/images/popup.png) |
-
+| 세부 내역 |
+|---|
+| <img width="869" height="499" alt="image" src="https://github.com/user-attachments/assets/49ccfde6-df2c-4504-a738-9356b9f3595b" />
 ## Overview
 
 - 데이터는 **이 브라우저에만 저장**함. 서버로 보내는 것이 없음.
