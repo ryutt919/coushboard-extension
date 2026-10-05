@@ -58,16 +58,18 @@
       <div id="wait" hidden>연도 목록을 읽는 중…</div>
       <dl id="meta">
         <div><dt>경과 시간</dt><dd id="elapsed">0:00</dd></div>
-        <div><dt>저장한 행</dt><dd id="rows">0</dd></div>
+        <div><dt id="rowsLabel">저장한 행</dt><dd id="rows">0</dd></div>
         <div><dt>마지막 저장</dt><dd id="ago">-</dd></div>
       </dl>
     </div>
+    <button id="newbtn" class="primary" type="button" hidden>새 주문 가져오기</button>
     <button id="collect" class="primary" type="button">가져오기 시작</button>
     <button id="resume" class="primary" type="button" hidden>이어서 수집</button>
     <button id="fresh" type="button" hidden>처음부터 다시</button>
     <button id="abort" type="button" hidden>중단</button>
     <button id="open" type="button">대시보드 열기</button>
     <div id="msg" role="alert"></div>
+    <div id="last" class="note" hidden></div>
     <div class="note">팝업을 닫아도 수집은 계속됩니다. 진행 상황은 다시 열면 보입니다.</div>
     <script type="module" src="/src/extension/popup.ts"></script>
   </body>

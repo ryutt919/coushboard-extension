@@ -297,4 +297,124 @@ test.describe('확장 수집 (합성 쿠팡 응답)', () => {
     await expect(page.getByTestId('kpi-total')).toContainText('1,700') // 500x2 + 700
     await page.close()
   })
+
+  // ---- 두 번째부터는 새 주문만 ----
+  /** 쿠팡 주문목록 맨 앞(최신)에 붙는 새 주문 n건 */
+  const freshOrders = (n: number, tag: string) =>
+    Array.from({ length: n }, (_, i) => ord(2026e10 + 9000 + i, `2026-12-${String(20 + i).padStart(2, '0')}T12:00:00`, [grp('FINAL_DELIVERY', [it(9000 + i, `${tag} 신규 상품 ${i + 1}, 1개`, { discountedUnitPrice: 5000 + i })])]))
+  const waitRun = async () => {
+    await expect.poll(async () => (await collectState(sw)).status, { timeout: 15000, intervals: [200] }).toBe('running') // 이전 수집의 done 을 새 수집의 끝으로 착각하지 않게
+    await waitStatus('done')
+  }
+
+  test('두 번째부터는 새 주문만 가져오고 멈추며, 이전 내역과 함께 보인다', async ({ context }) => {
+    const popup = await context.newPage()
+    await popup.goto(popupUrl(extId()))
+    // 처음에는 전체 수집(새 주문만 가져오기 버튼은 없다)
+    await expect(popup.locator('#newbtn')).toBeHidden()
+    await popup.locator('#collect').click()
+    await waitStatus('done')
+    expect(mock.calls.length).toBe(7)
+    const before = await orders(sw)
+    expect(before.length).toBe(EXPECTED)
+    expect(((await storage(sw)).sync as { lastFullAt: number }).lastFullAt).toBeGreaterThan(0)
+
+    // 새 주문 2건이 생긴 뒤: 새 주문 가져오기가 기본이고, 전체는 따로 다시 받는다
+    mock.data[2026].unshift(...freshOrders(2, 'A'))
+    mock.calls.length = 0
+    await expect(popup.locator('#newbtn')).toBeVisible()
+    await expect(popup.locator('#collect')).toHaveText('전체 다시 가져오기')
+    await popup.locator('#newbtn').click()
+    await expect(popup.locator('#stext')).toContainText('새 주문 확인 중')
+    await waitRun()
+    // 새 주문이 있는 첫 페이지와, 이미 가진 주문만 있는 다음 페이지 하나만 읽고 멈춘다(2026년의 나머지, 2025년, 2024년은 읽지 않는다)
+    expect(mock.calls.map((c) => `${c.y}/${c.p}`)).toEqual(['2026/0', '2026/1'])
+    const st = await collectState(sw)
+    expect(st).toMatchObject({ mode: 'new', stopReason: 'known', newOrders: 2, status: 'done' })
+    await expect(popup.locator('#stext')).toContainText('완료. 새 주문 2건을 추가했습니다')
+    await expect(popup.locator('#steps')).toBeHidden() // 어디서 멈출지 모르므로 연도별 칸은 숨긴다
+    await expect(popup.locator('#rowsLabel')).toHaveText('새 주문')
+    await expect(popup.locator('#rows')).toHaveText('2건')
+
+    // 이전 내역은 그대로이고 새 주문이 합쳐졌다
+    const after = await expectNoDuplicates()
+    expect(after.length).toBe(EXPECTED + 2)
+    const byKey = new Map(after.map((r) => [keyOf(r), r]))
+    for (const r of before) expect(byKey.get(keyOf(r))).toEqual(r)
+    expect(after.filter((r) => r.raw_name.includes('A 신규')).length).toBe(2)
+
+    // 대시보드에서 이전 주문과 새 주문을 함께 볼 수 있다
+    const dash = await context.newPage()
+    await dash.goto(`chrome-extension://${extId()}/app/extension.html`)
+    await expect(dash.getByTestId('collect-new')).toBeVisible()
+    await dash.getByRole('searchbox', { name: '상품명 검색' }).fill('A 신규')
+    await expect(dash.getByTestId('row')).toHaveCount(2)
+    await dash.getByRole('searchbox', { name: '상품명 검색' }).fill('2025년 상품')
+    expect(await dash.getByTestId('row').count()).toBeGreaterThan(0)
+    await dash.close()
+
+    // 그 뒤에 새 주문이 없으면 첫 페이지만 확인하고 끝난다
+    mock.calls.length = 0
+    await popup.locator('#newbtn').click()
+    await waitRun()
+    expect(mock.calls.map((c) => `${c.y}/${c.p}`)).toEqual(['2026/0'])
+    await expect(popup.locator('#stext')).toHaveText('완료. 새 주문이 없습니다')
+    expect((await orders(sw)).length).toBe(EXPECTED + 2)
+    await popup.close()
+  })
+
+  test('전체 수집을 끝내기 전에는 새 주문만 가져오기를 쓰지 않고, 요청이 와도 전체로 한다', async ({ context }) => {
+    const popup = await context.newPage()
+    await popup.goto(popupUrl(extId()))
+    await popup.locator('#collect').click()
+    await expect.poll(async () => ((await collectState(sw)).checkpoint as { year: string } | null)?.year, { timeout: 40000 }).toBe('2025')
+    await popup.locator('#abort').click()
+    await waitStatus('aborted')
+    // 전체 수집이 중간에 끊겼으면 오래된 주문이 비어 있으므로 새 주문만 가져오기 대신 이어서 수집이 나온다
+    await expect(popup.locator('#newbtn')).toBeHidden()
+    await expect(popup.locator('#resume')).toBeVisible()
+
+    mock.calls.length = 0
+    const res = await popup.evaluate(async () => await chrome.runtime.sendMessage({ type: 'START_COLLECT', mode: 'new' }))
+    expect(res.ok).toBe(true)
+    expect(res.mode).toBe('full') // 새 주문만으로 시작해 달라고 해도 전체로 한다
+    await waitStatus('done')
+    expect((await collectState(sw)).mode).toBe('full')
+    expect(mock.calls.some((c) => c.y === 2024)).toBe(true) // 가장 오래된 연도까지 읽었다
+    expect((await expectNoDuplicates()).length).toBe(EXPECTED)
+    await popup.close()
+  })
+
+  test('새 주문만 가져오는 중 중단하고 이어서 해도 새 주문을 놓치지 않는다', async ({ context }) => {
+    const popup = await context.newPage()
+    await popup.goto(popupUrl(extId()))
+    await popup.locator('#collect').click()
+    await waitStatus('done')
+    const before = (await orders(sw)).length
+
+    // 새 주문 12건(3페이지에 걸침)
+    mock.data[2026].unshift(...freshOrders(12, 'B'))
+    mock.calls.length = 0
+    await popup.locator('#newbtn').click()
+    await expect.poll(async () => (await collectState(sw)).newOrders ?? 0, { timeout: 20000 }).toBeGreaterThanOrEqual(5) // 첫 페이지까지 저장됨
+    await popup.locator('#abort').click()
+    await waitStatus('aborted')
+    const partial = (await collectState(sw)).newOrders ?? 0
+    expect(partial).toBeLessThan(12)
+    await expect(popup.locator('#resume')).toBeVisible()
+    await expect(popup.locator('#newbtn')).toBeHidden()
+
+    // 이어서 하면 새 주문 12건을 모두 가져온 뒤, 이미 가진 주문만 있는 페이지에서 멈춘다
+    // (이어서 읽는 페이지의 새 주문은 이미 저장되어 있어도 "이미 가진 주문"으로 착각해 일찍 멈추지 않는다)
+    await popup.locator('#resume').click()
+    await waitStatus('done')
+    const st = await collectState(sw)
+    expect(st).toMatchObject({ mode: 'new', stopReason: 'known', newOrders: 12 })
+    const rows = await expectNoDuplicates()
+    expect(rows.length).toBe(before + 12)
+    expect(rows.filter((r) => r.raw_name.includes('B 신규')).length).toBe(12)
+    expect(mock.calls.at(-1)).toMatchObject({ y: 2026, p: 3 }) // 이미 가진 주문만 있는 4번째 페이지에서 멈춤
+    expect(mock.calls.some((c) => c.y === 2025)).toBe(false) // 2025년 이전은 읽지 않았다
+    await popup.close()
+  })
 })

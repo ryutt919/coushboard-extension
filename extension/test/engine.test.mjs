@@ -43,6 +43,19 @@ r = await collectAll(mk(), { ...fast, signal: ac2.signal }); assert.equal(r.abor
 // 빈 연도 목록은 오류
 await assert.rejects(collectAll({ listYears: async () => [] }, fast));
 
+// stopWhen: 저장(onPage) 뒤에 부르고, true 면 남은 페이지와 연도를 모두 건너뛴다(새 주문만 가져오기)
+const order = [];
+r = await collectAll(mk(), { ...fast, onPage: async (p) => { order.push(`page ${p.year}/${p.pageIndex}`); }, stopWhen: async (p) => { order.push(`stop? ${p.year}/${p.pageIndex}`); return p.year === "2025" && p.pageIndex === 1; } });
+assert.equal(r.stopped, true); assert.equal(r.aborted, false);
+assert.deepEqual(order.filter((x) => x.startsWith("page")), ["page 2026/0", "page 2025/0", "page 2025/1"]); // 2025년 2페이지에서 멈추면 2025년 3페이지와 2024년은 읽지 않는다
+assert.equal(order[order.indexOf("page 2025/1") + 1], "stop? 2025/1"); // 저장 뒤에 판단한다
+// 멈추지 않으면 stopped 는 false
+r = await collectAll(mk(), { ...fast, stopWhen: async () => false }); assert.equal(r.stopped, false); assert.equal(r.rows.length, 7);
+// 첫 페이지에서 바로 멈춰도 그 페이지는 저장한다(이미 가진 주문의 최신 상태를 갱신)
+const first = [];
+r = await collectAll(mk(), { ...fast, onPage: async (p) => { first.push(`${p.year}/${p.pageIndex}`); }, stopWhen: () => true });
+assert.deepEqual(first, ["2026/0"]); assert.equal(r.stopped, true);
+
 // 저장 규칙(웹앱 src/lib/stored.ts 와 같음): 같은 주문번호는 교체, 나머지는 보존. 같은 페이지를 다시 저장해도 늘지 않는다.
 const o = (no, seq, extra = {}) => ({ order_no: no, seq, ordered_at: "2026-01-01 00:00:00", product_no: "p", status: "배송완료", raw_name: "x", qty: 1, sale_price: 100, ...extra });
 let st = applyReplaceOrders([], [o("1", 0), o("1", 1), o("2", 0)]);

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { DuplicateFileError } from '../../src/lib/backend'
 import { ChromeBackend } from '../../src/lib/chromeBackend'
-import { COLLECT_KEY, effectiveState, elapsedMs, formatAgo, formatElapsed, IDLE_STATE, progressText, STALE_MS, yearSteps } from '../../src/extension/collectState'
+import { canIncremental, COLLECT_KEY, effectiveState, elapsedMs, formatAgo, formatElapsed, IDLE_STATE, progressText, STALE_MS, yearSteps } from '../../src/extension/collectState'
 import type { OrderRow } from '../../src/lib/types'
 
 // chrome.storage.local 과 chrome.runtime.sendMessage 를 흉내 낸 가짜. 실제 확장 환경은 tests/e2e-ext 에서 본다.
@@ -109,6 +109,24 @@ describe('수집 상태', () => {
     expect(yearSteps({ ...IDLE_STATE, status: 'running' })).toEqual([]) // 연도 목록을 읽기 전
   })
 
+  it('새 주문만 가져오기는 전체 수집을 한 번 끝내고 저장된 주문이 있을 때만 쓴다', () => {
+    const done = { ...IDLE_STATE, status: 'done' as const }
+    expect(canIncremental({ lastFullAt: 1 }, undefined, 10)).toBe(true) // 전체 수집을 끝낸 기록
+    expect(canIncremental({ lastFullAt: 1 }, undefined, 0)).toBe(false) // 저장된 주문이 없으면 전체
+    expect(canIncremental(undefined, done, 10)).toBe(true) // 이전 버전이 끝낸 전체 수집
+    expect(canIncremental(undefined, { ...done, mode: 'new' }, 10)).toBe(false) // 새 주문만 가져온 기록만으로는 전체를 끝낸 것이 아님
+    expect(canIncremental(undefined, { ...IDLE_STATE, status: 'aborted' as const }, 10)).toBe(false) // 전체 수집이 중간에 끊김
+    expect(canIncremental(undefined, undefined, 10)).toBe(false) // CSV만 있음
+  })
+
+  it('새 주문만 가져오기 문구', () => {
+    const base = { ...IDLE_STATE, mode: 'new' as const, year: '2026', page: 1 }
+    expect(progressText({ ...base, status: 'running', newOrders: 3 })).toBe('새 주문 확인 중, 2026년 2페이지, 새 주문 3건')
+    expect(progressText({ ...base, status: 'done', newOrders: 2, rows: 8 })).toBe('완료. 새 주문 2건을 추가했습니다(8행 확인)')
+    expect(progressText({ ...base, status: 'done', newOrders: 0 })).toBe('완료. 새 주문이 없습니다')
+    expect(progressText({ ...base, status: 'done', mode: 'full', perYear: { 2026: 3 } })).toBe('완료. 2026:3') // 전체 수집 문구는 그대로
+  })
+
   it('경과 시간과 마지막 저장 문구', () => {
     expect(formatElapsed(0)).toBe('0:00')
     expect(formatElapsed(65_000)).toBe('1:05')
@@ -116,6 +134,9 @@ describe('수집 상태', () => {
     expect(formatElapsed(3_723_000)).toBe('1:02:03')
     expect(formatAgo(1_000)).toBe('방금')
     expect(formatAgo(7_400)).toBe('7초 전')
+    expect(formatAgo(125_000)).toBe('2분 전')
+    expect(formatAgo(5 * 3_600_000 + 1)).toBe('5시간 전')
+    expect(formatAgo(2 * 86_400_000)).toBe('2일 전')
     const s = { ...IDLE_STATE, startedAt: 1_000, updatedAt: 41_000 }
     expect(elapsedMs({ ...s, status: 'running' }, 61_000)).toBe(60_000) // 진행 중이면 지금까지
     expect(elapsedMs({ ...s, status: 'done' }, 61_000)).toBe(40_000) // 끝났으면 마지막 저장까지

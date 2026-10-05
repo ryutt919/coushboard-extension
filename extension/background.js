@@ -41,7 +41,7 @@ const handlers = {
     await chrome.storage.local.set({ orders: applyShipping(orders, m.updates) });
   },
   async DELETE_ALL() {
-    await chrome.storage.local.remove(["orders", "receipts", "imports", "settings", COLLECT_KEY]);
+    await chrome.storage.local.remove(["orders", "receipts", "imports", "settings", COLLECT_KEY, "sync", "collectKnown"]);
   },
 };
 

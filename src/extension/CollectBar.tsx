@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { progressText, yearSteps } from './collectState'
-import { useCollectActions, useCollectState } from './useCollect'
+import { useCollectActions, useCollectInfo } from './useCollect'
 
 /** 쿠팡에서 주문을 가져오는 막대. 상태는 저장소에 있어 이 탭이나 팝업을 닫았다 열어도 그대로 이어서 보인다 */
 export function CollectBar() {
-  const s = useCollectState()
+  const { state: s, canNew } = useCollectInfo()
   const { start, abort } = useCollectActions()
   const [msg, setMsg] = useState<string | null>(null)
   const running = s.status === 'running'
   const canResume = (s.status === 'aborted' || s.status === 'error') && s.checkpoint !== null
+  // 두 번째부터는 새 주문만 가져오는 것이 기본이다(이미 가진 주문을 만나면 멈춤). 전체는 따로 다시 받는다
+  const incremental = !running && !canResume && canNew
+  const isNew = s.mode === 'new'
   const steps = yearSteps(s)
 
   async function go(fn: () => Promise<string | null>) {
@@ -22,7 +25,7 @@ export function CollectBar() {
         <span role="status" data-testid="collect-status" data-status={s.status} style={{ fontSize: 14, color: 'var(--muted)' }}>
           {progressText(s)}
         </span>
-        {s.status !== 'idle' && s.years.length > 0 && (
+        {s.status !== 'idle' && !isNew && s.years.length > 0 && (
           <span
             role="progressbar"
             aria-label="연도별 수집 진행"
@@ -54,8 +57,13 @@ export function CollectBar() {
                 이어서 수집
               </button>
             )}
-            <button type="button" className={'btn sm' + (canResume ? '' : ' primary')} data-testid="collect-start" onClick={() => void go(() => start('fresh'))}>
-              {canResume ? '처음부터 다시' : s.status === 'done' ? '다시 가져오기' : '가져오기 시작'}
+            {incremental && (
+              <button type="button" className="btn sm primary" data-testid="collect-new" onClick={() => void go(() => start('new'))}>
+                새 주문 가져오기
+              </button>
+            )}
+            <button type="button" className={'btn sm' + (canResume || incremental ? '' : ' primary')} data-testid="collect-start" onClick={() => void go(() => start('fresh'))}>
+              {canResume ? '처음부터 다시' : incremental ? '전체 다시 가져오기' : s.status === 'done' ? '다시 가져오기' : '가져오기 시작'}
             </button>
           </>
         )}
