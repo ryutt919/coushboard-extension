@@ -13,7 +13,8 @@
 3. 좌측 상단의 **압축해제된 확장 프로그램을 로드합니다**를 눌러 압축 푼 폴더를 선택함.
   <img width="368" height="268" alt="image" src="https://github.com/user-attachments/assets/fdb76843-4c5e-4e4f-9315-5e18feaf2619" />
 4. 쿠팡에 로그인함.
-5. 확장 아이콘의 팝업에서 **가져오기 시작**을 누름. 5분 가량 소요.<img width="243" height="254" alt="image" src="https://github.com/user-attachments/assets/1926e54c-54b8-491a-83ef-cd94e299f5a8" />
+5. 확장 아이콘의 팝업에서 **가져오기 시작**을 누름. 5분 가량 소요.
+ <img width="243" height="254" alt="image" src="https://github.com/user-attachments/assets/1926e54c-54b8-491a-83ef-cd94e299f5a8" />
 6. 팝업의 **대시보드 열기**로 결과를 확인함.
 7. 다음부터는 팝업의 **새 주문 가져오기**를 누름. 새 주문만 가져와 이전 내역에 합치고 멈춰서 몇 초면 끝남.
 
