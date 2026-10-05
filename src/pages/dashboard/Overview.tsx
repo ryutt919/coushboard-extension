@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CatChip, SearchIcon } from '../../components/Common'
 import { dot } from '../../lib/dates'
 import { csvEscape, downloadText, fmt, man } from '../../lib/format'
@@ -28,7 +28,6 @@ export function Overview({ period, sel, summary }: { period: Period; sel: Enrich
   const [shown, setShown] = useState(PAGE)
   const [edit, setEdit] = useState<EnrichedRow | null>(null)
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'dt', dir: 'desc' })
-  const [grouped, setGrouped] = useState(true)
 
   const total = summary.total
   // 가장 큰 구매와 상품당 평균은 상품 1개당 가격(판매가) 기준이다. 가격 x 수량(금액)이 아니다.
@@ -61,21 +60,6 @@ export function Overview({ period, sel, summary }: { period: Period; sel: Enrich
         return av === bv ? byDate : sort.dir === 'desc' ? bv - av : av - bv
       })
   }, [sel, cat, q, sort])
-
-  // 카테고리별로 묶어 보기: 묶음은 지출이 큰 순(미분류는 맨 뒤), 묶음 안의 순서는 위에서 고른 정렬을 따른다
-  const { display, groupStats } = useMemo(() => {
-    const stats = new Map<string, { n: number; amount: number; rows: EnrichedRow[] }>()
-    for (const r of filtered) {
-      const g = stats.get(r.category) ?? { n: 0, amount: 0, rows: [] }
-      g.n += 1
-      g.amount += r.amount
-      g.rows.push(r)
-      stats.set(r.category, g)
-    }
-    if (!grouped) return { display: filtered, groupStats: stats }
-    const order = [...stats.entries()].sort((a, b) => Number(a[0] === fallback) - Number(b[0] === fallback) || b[1].amount - a[1].amount)
-    return { display: order.flatMap(([, g]) => g.rows), groupStats: stats }
-  }, [filtered, grouped, fallback])
 
   function toggleSort(key: SortKey) {
     setSort((s) => (s.key === key ? { key, dir: s.dir === 'desc' ? 'asc' : 'desc' } : { key, dir: 'desc' }))
@@ -238,15 +222,31 @@ export function Overview({ period, sel, summary }: { period: Period; sel: Enrich
               </button>
             )}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <button type="button" className={'btn sm' + (grouped ? ' primary' : '')} aria-pressed={grouped} data-testid="group-toggle" onClick={() => setGrouped((g) => !g)}>
-            카테고리별로 묶기
-          </button>
           <label className="search" style={{ width: 260, maxWidth: '100%' }}>
             <SearchIcon />
             <input type="search" placeholder="상품명 검색" aria-label="상품명 검색" value={q} onChange={(e) => { setQ(e.target.value); setShown(PAGE) }} />
           </label>
-          </div>
+        </div>
+        {/* 카테고리는 전부 보여 주고, 눌러서 그 카테고리만 골라 본다. 목록은 거래일시 순서가 기본이다 */}
+        <div role="group" aria-label="카테고리 선택" data-testid="cat-chips" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', padding: '12px 20px', borderBottom: '1px solid var(--line)' }}>
+          <button type="button" className={'pill' + (cat === null ? ' on' : '')} aria-pressed={cat === null} data-testid="cat-chip-all" onClick={() => { setCat(null); setShown(PAGE) }}>
+            전체 {sel.length}건
+          </button>
+          {cats.map((c) => (
+            <button
+              key={c.name}
+              type="button"
+              className={'pill' + (cat === c.name ? ' on' : '')}
+              aria-pressed={cat === c.name}
+              data-testid={`cat-chip-${c.name}`}
+              onClick={() => {
+                setCat(cat === c.name ? null : c.name)
+                setShown(PAGE)
+              }}
+            >
+              {c.name} {c.n}건
+            </button>
+          ))}
         </div>
         {edit && <EditPanel key={edit.key} row={edit} onClose={() => setEdit(null)} />}
         <div style={{ overflowX: 'auto' }}>
@@ -262,22 +262,8 @@ export function Overview({ period, sel, summary }: { period: Period; sel: Enrich
               </tr>
             </thead>
             <tbody>
-              {display.slice(0, shown).map((r, i, arr) => (
-                <Fragment key={r.key + (r.restored ? 'r' : '')}>
-                  {grouped && (i === 0 || arr[i - 1].category !== r.category) && (
-                    <tr data-testid="group-head">
-                      <td colSpan={6} style={{ background: 'var(--surface-2)', padding: '10px 20px', borderTop: '1px solid var(--line)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 700 }}>
-                            <CatChip category={r.category}>{r.category}</CatChip>
-                            <span className="sub" style={{ fontWeight: 400 }}>{groupStats.get(r.category)?.n}건</span>
-                          </span>
-                          <span style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{fmt(groupStats.get(r.category)?.amount ?? 0)}원</span>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                <tr data-testid="row">
+              {filtered.slice(0, shown).map((r) => (
+                <tr key={r.key + (r.restored ? 'r' : '')} data-testid="row">
                   <td style={{ color: 'var(--muted)', whiteSpace: 'nowrap' }}>{dot(r.date)}</td>
                   <td style={{ maxWidth: 380 }}>
                     <div className="ellipsis">{r.name}</div>
@@ -307,7 +293,6 @@ export function Overview({ period, sel, summary }: { period: Period; sel: Enrich
                     {fmt(r.amount)}원
                   </td>
                 </tr>
-                </Fragment>
               ))}
               {filtered.length === 0 && (
                 <tr>
@@ -321,7 +306,7 @@ export function Overview({ period, sel, summary }: { period: Period; sel: Enrich
         </div>
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }} className="sub">
           <span data-testid="count-label">
-            {sel.length}건 중 {filtered.length}건 · {grouped ? '카테고리별, 묶음 안에서 ' : ''}{SORT_LABEL[sort.key][sort.dir === 'asc' ? 0 : 1]} {Math.min(shown, filtered.length)}건 표시
+            {sel.length}건 중 {filtered.length}건 · {SORT_LABEL[sort.key][sort.dir === 'asc' ? 0 : 1]} {Math.min(shown, filtered.length)}건 표시
           </span>
           <div style={{ display: 'flex', gap: 8 }}>
             {filtered.length > shown && (

@@ -64,9 +64,6 @@ test.describe('확장 대시보드 (예시 mock 데이터)', () => {
   test('결제 내역을 거래일시, 1개당 가격, 금액으로 정렬할 수 있다', async ({ page }) => {
     await openDemo(page)
     await page.getByTestId('kpi-total').waitFor()
-    // 전체 순서를 확인하려고 카테고리 묶기는 끈다(묶기는 아래 별도 테스트에서 확인)
-    await page.getByTestId('group-toggle').click()
-    await expect(page.getByTestId('group-toggle')).toHaveAttribute('aria-pressed', 'false')
     const nums = async (id: string) => (await page.getByTestId(id).allInnerTexts()).map((t) => Number(t.replace(/[^\d]/g, '')))
     const dates = async () => (await page.getByTestId('row').locator('td:first-child').allInnerTexts()).map((t) => t.trim())
     const sorted = (a: number[], dir: 1 | -1) => a.every((v, i) => i === 0 || (dir === 1 ? a[i - 1] <= v : a[i - 1] >= v))
@@ -111,45 +108,39 @@ test.describe('확장 대시보드 (예시 mock 데이터)', () => {
     await expectNoSeriousA11y(page, '결제 내역 정렬')
   })
 
-  test('결제 내역은 기본으로 카테고리별로 묶이고, 묶음 안에서 정렬되며, 끄면 전체가 한 줄로 이어진다', async ({ page }) => {
+  test('결제 내역은 거래일시 최근 순이 기본이고, 카테고리를 전부 보여 주며 고르면 그 카테고리만 나온다', async ({ page }) => {
     await openDemo(page)
     await page.getByTestId('kpi-total').waitFor()
-    await expect(page.getByTestId('group-toggle')).toHaveAttribute('aria-pressed', 'true')
 
-    // 같은 카테고리의 행은 한 묶음 안에 이어서 나오고, 묶음 제목은 카테고리마다 한 번만 나온다
-    await page.getByTestId('rows').locator('tbody').waitFor()
-    await expect(page.getByTestId('group-head').first()).toBeVisible()
-    const cats = (await page.getByTestId('rows').locator('tbody tr[data-testid="row"] button[aria-label^="카테고리 변경"]').all()).length
-    expect(cats).toBeGreaterThan(0)
-    const seq = await page.getByTestId('rows').locator('tbody tr').evaluateAll((trs) =>
-      trs.map((tr) => (tr.getAttribute('data-testid') === 'group-head' ? 'H:' + (tr.querySelector('td')?.textContent ?? '').split(/\d+건/)[0].trim() : 'R:' + (tr.querySelector('button[aria-label^="카테고리 변경"]')?.getAttribute('aria-label') ?? '').replace('카테고리 변경: ', '')))
-    )
-    const heads = seq.filter((x) => x.startsWith('H:')).map((x) => x.slice(2))
-    expect(new Set(heads).size).toBe(heads.length)
-    let cur = ''
-    for (const x of seq) {
-      if (x.startsWith('H:')) cur = x.slice(2)
-      else expect(x.slice(2)).toBe(cur)
-    }
+    // 기본은 거래일시 최근 순이고, 묶음 없이 한 줄로 이어져 여러 카테고리가 섞여 나온다
+    await expect(page.getByTestId('sort-dt').locator('xpath=..')).toHaveAttribute('aria-sort', 'descending')
+    const dates = (await page.getByTestId('row').locator('td:first-child').allInnerTexts()).map((t) => t.trim())
+    expect(dates).toEqual([...dates].sort().reverse())
+    const labelsOf = () => page.getByTestId('row').locator('button[aria-label^="카테고리 변경"]').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label') ?? ''))
+    expect(new Set(await labelsOf()).size).toBeGreaterThan(1)
 
-    // 묶음 안에서는 고른 정렬(금액 높은 순)을 따른다
-    await page.getByTestId('sort-amount').click()
-    await expect(page.getByTestId('count-label')).toContainText('카테고리별')
-    const first = await page.getByTestId('rows').locator('tbody tr').evaluateAll((trs) => {
-      const out: number[] = []
-      for (const tr of trs) {
-        if (tr.getAttribute('data-testid') === 'group-head') break
-        if (tr.getAttribute('data-testid') === 'row') out.push(Number((tr.querySelector('[data-testid="row-amount"]')?.textContent ?? '').replace(/[^\d]/g, '')))
-        if (out.length && tr.getAttribute('data-testid') === 'row' && out.length > 1 && out[out.length - 1] > out[out.length - 2]) break
-      }
-      return out
-    })
-    expect(first.every((v, i) => i === 0 || first[i - 1] >= v)).toBe(true)
+    // 카테고리 칩은 "카테고리별 지출"의 모든 카테고리를 빠짐없이 보여 주고, 건수의 합이 전체와 같다
+    const chips = page.getByTestId('cat-chips').locator('[data-testid^="cat-chip-"]:not([data-testid="cat-chip-all"])')
+    const names = await chips.evaluateAll((els) => els.map((e) => (e.getAttribute('data-testid') ?? '').replace('cat-chip-', '')))
+    const barNames = await page.locator('button.catrow').evaluateAll((els) => els.map((e) => (e.getAttribute('data-testid') ?? '').replace('cat-', '')))
+    expect([...names].sort()).toEqual([...barNames].sort())
+    expect(names.length).toBeGreaterThan(1)
+    const count = (t: string) => Number((t.match(/(\d+)건/) ?? ['', '0'])[1])
+    const counts = (await chips.allInnerTexts()).map(count)
+    expect(counts.reduce((a, b) => a + b, 0)).toBe(count(await page.getByTestId('cat-chip-all').innerText()))
 
-    // 끄면 묶음 제목이 사라진다
-    await page.getByTestId('group-toggle').click()
-    await expect(page.getByTestId('group-head')).toHaveCount(0)
-    await expectNoSeriousA11y(page, '결제 내역 카테고리 묶기')
+    // 칩을 누르면 그 카테고리만 나오고(건수도 칩과 같고), 전체를 누르면 다시 모두 나온다
+    const pick = names[names.length - 1]
+    await page.getByTestId(`cat-chip-${pick}`).click()
+    await expect(page.getByTestId(`cat-chip-${pick}`)).toHaveAttribute('aria-pressed', 'true')
+    const picked = await labelsOf()
+    expect(picked.length).toBeGreaterThan(0)
+    for (const l of picked) expect(l).toContain(pick)
+    await expect(page.getByTestId('count-label')).toContainText(`${counts[names.length - 1]}건 `)
+    await page.getByTestId('cat-chip-all').click()
+    await expect(page.getByTestId('cat-chip-all')).toHaveAttribute('aria-pressed', 'true')
+    expect(new Set(await labelsOf()).size).toBeGreaterThan(1)
+    await expectNoSeriousA11y(page, '결제 내역 카테고리 칩')
   })
 
   test('상단 기간 선택에 데이터가 있는 연도별 버튼이 있고, 누르면 그 해로 기간이 바뀐다', async ({ page }) => {

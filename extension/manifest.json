@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "쿠팡 지출 기록",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "쿠팡 주문내역을 연도 구분 없이 수집해 브라우저 안에서만 분석합니다. 서버 전송 없음.",
   "permissions": ["storage", "unlimitedStorage", "scripting"],
   "host_permissions": ["*://*.coupang.com/*"],
