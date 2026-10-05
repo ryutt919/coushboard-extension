@@ -16,6 +16,8 @@
 4. 쿠팡에 로그인함.
 5. 확장 아이콘의 팝업에서 **가져오기 시작**을 누름. 5분 가량 소요.
 
+<img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/2ef4f189-c054-4e4d-a49a-afc58f80bb5f" />
+
 <img width="243" height="254" alt="image" src="https://github.com/user-attachments/assets/1926e54c-54b8-491a-83ef-cd94e299f5a8" />
  
 7. 팝업의 **대시보드 열기**로 결과를 확인함.
