@@ -6,16 +6,13 @@
 ![대시보드 개요](docs/images/dashboard.png)
 
 ## Quick Start
-| 1 | 3 | 5 |
-|---|---|---|
-|<img width="2496" height="1254" alt="image" src="https://github.com/user-attachments/assets/7b979e66-38b1-4dc6-829f-076a78d7649c" /><img width="368" height="268" alt="image" src="https://github.com/user-attachments/assets/fdb76843-4c5e-4e4f-9315-5e18feaf2619" />| <img width="243" height="254" alt="image" src="https://github.com/user-attachments/assets/1926e54c-54b8-491a-83ef-cd94e299f5a8" />
-|
 
-1. 현재 화면 우측의 Releases에서 최신 `coushboard-extension-v*.zip`을 내려받아 압축을 풂.
+1. 현재 화면 우측의 Releases에서 최신 `coushboard-extension-v*.zip`을 내려받아 압축을 풂.<img width="2496" height="1254" alt="image" src="https://github.com/user-attachments/assets/7b979e66-38b1-4dc6-829f-076a78d7649c" />
+
 2. `chrome://extensions`를 열고 우측 상단의 **개발자 모드**를 켬.
-3. 좌측 상단의 **압축해제된 확장 프로그램을 로드합니다**를 눌러 압축 푼 폴더를 선택함.
+3. 좌측 상단의 **압축해제된 확장 프로그램을 로드합니다**를 눌러 압축 푼 폴더를 선택함.<img width="368" height="268" alt="image" src="https://github.com/user-attachments/assets/fdb76843-4c5e-4e4f-9315-5e18feaf2619" />
 4. 쿠팡에 로그인함.
-5. 확장 아이콘의 팝업에서 **가져오기 시작**을 누름. 5분 가량 소요.
+5. 확장 아이콘의 팝업에서 **가져오기 시작**을 누름. 5분 가량 소요.<img width="243" height="254" alt="image" src="https://github.com/user-attachments/assets/1926e54c-54b8-491a-83ef-cd94e299f5a8" />
 6. 팝업의 **대시보드 열기**로 결과를 확인함.
 7. 다음부터는 팝업의 **새 주문 가져오기**를 누름. 새 주문만 가져와 이전 내역에 합치고 멈춰서 몇 초면 끝남.
 
