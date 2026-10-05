@@ -5,10 +5,16 @@
 ![대시보드 개요](docs/images/dashboard.png)
 
 ## Quick Start
+| 1 | 2 | 3 | 5 | 6|
+|---|---|---|---|---|
+|<img width="258" height="117" alt="image" src="https://github.com/user-attachments/assets/5e023a9c-5742-4b14-b22d-b478ad74e4de" />
+ |<img width="179" height="74" alt="image" src="https://github.com/user-attachments/assets/42a4f21b-cfd8-4c3d-8cc6-0ea7e4f9c3b8" />
+|<img width="368" height="268" alt="image" src="https://github.com/user-attachments/assets/fdb76843-4c5e-4e4f-9315-5e18feaf2619" />| <img width="243" height="254" alt="image" src="https://github.com/user-attachments/assets/1926e54c-54b8-491a-83ef-cd94e299f5a8" />
+| |
 
-1. Releases에서 최신 `coushboard-extension-v*.zip`을 내려받아 압축을 풂.
-2. `chrome://extensions`를 열고 **개발자 모드**를 켬.
-3. **압축해제된 확장 프로그램을 로드합니다**를 눌러 압축 푼 폴더를 선택함.
+1. 현재 화면 우측의 Releases에서 최신 `coushboard-extension-v*.zip`을 내려받아 압축을 풂.
+2. `chrome://extensions`를 열고 우측 상단의 **개발자 모드**를 켬.
+3. 좌측 상단의 **압축해제된 확장 프로그램을 로드합니다**를 눌러 압축 푼 폴더를 선택함.
 4. 쿠팡에 로그인함.
 5. 확장 아이콘의 팝업에서 **가져오기 시작**을 누름. 주문 760줄 기준 약 5분 걸림.
 6. 팝업의 **대시보드 열기**로 결과를 확인함.
