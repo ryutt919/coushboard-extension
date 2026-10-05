@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>쿠팡 지출 기록</title>
+    <style>
+      body { margin: 0; width: 320px; padding: 14px; font: 14px/1.5 "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; color: #15171c; background: #fff; }
+      h1 { font-size: 15px; margin: 0 0 10px; }
+      button { display: block; width: 100%; height: 40px; margin-top: 8px; border: 1px solid #d5d8df; border-radius: 8px; background: #fff; font: inherit; cursor: pointer; }
+      button.primary { background: #1f4fd8; border-color: #1f4fd8; color: #fff; font-weight: 600; }
+      button[hidden] { display: none; }
+      #status { padding: 8px 10px; border-radius: 8px; background: #f4f5f7; color: #2b2f38; }
+      #msg { color: #a02841; font-size: 13px; margin-top: 6px; }
+      .note { color: #5b6170; font-size: 12px; margin-top: 10px; }
+    </style>
+  </head>
+  <body>
+    <h1>쿠팡 지출 기록</h1>
+    <div id="status" role="status">불러오는 중…</div>
+    <button id="collect" class="primary" type="button">가져오기 시작</button>
+    <button id="resume" class="primary" type="button" hidden>이어서 수집</button>
+    <button id="fresh" type="button" hidden>처음부터 다시</button>
+    <button id="abort" type="button" hidden>중단</button>
+    <button id="open" type="button">대시보드 열기</button>
+    <div id="msg" role="alert"></div>
+    <div class="note">팝업을 닫아도 수집은 계속됩니다. 진행 상황은 다시 열면 보입니다.</div>
+    <script type="module" src="/src/extension/popup.ts"></script>
+  </body>
+</html>

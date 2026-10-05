@@ -1,0 +1,19 @@
+node_modules/
+extension/app/
+release/
+test-results/
+playwright-report/
+*.log
+*.tsbuildinfo
+.env
+.env.*
+*.csv
+!tests/fixtures/*.csv
+*.xlsx
+*.zip
+
+# 작업 기록과 AI 협업 문서(로컬에만 둔다)
+Agent_handoff/
+mds/
+CLAUDE.md
+AGENTS.md

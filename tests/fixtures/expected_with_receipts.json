@@ -1,0 +1,627 @@
+{
+ "input": {
+  "rows_raw": 21,
+  "orders": 10,
+  "data_start": "2024-11-03",
+  "data_end": "2026-05-31"
+ },
+ "dedupe": {
+  "removed": 2,
+  "restored": 1,
+  "restored_orders": [
+   "1000000000003"
+  ]
+ },
+ "rows_after_dedupe": 19,
+ "unclassified": 1,
+ "reconcile": {
+  "matched": 3,
+  "exact": 2,
+  "diffs": [
+   {
+    "order_no": "1000000000010",
+    "orders": 17700,
+    "receipts": 20700,
+    "diff": -3000
+   }
+  ],
+  "receipt_orders_missing": 0
+ },
+ "summaries": [
+  {
+   "from": "2024-11-03",
+   "to": "2026-05-31",
+   "status": "ok",
+   "rows": 17,
+   "total": 361540,
+   "order_days": 8,
+   "granularity": "year",
+   "buckets": {
+    "2024": {
+     "n": 1,
+     "amount": 6790,
+     "future": false
+    },
+    "2025": {
+     "n": 13,
+     "amount": 298660,
+     "future": false
+    },
+    "2026": {
+     "n": 3,
+     "amount": 56090,
+     "future": false
+    }
+   },
+   "by_category": {
+    "건강·의료": {
+     "n": 2,
+     "amount": 89500
+    },
+    "미분류": {
+     "n": 1,
+     "amount": 62280
+    },
+    "뷰티·위생": {
+     "n": 2,
+     "amount": 21260
+    },
+    "생활용품": {
+     "n": 1,
+     "amount": 10760
+    },
+    "식품·음료": {
+     "n": 9,
+     "amount": 134660
+    },
+    "운동·레저": {
+     "n": 2,
+     "amount": 43080
+    }
+   },
+   "products": [
+    {
+     "group": "펩시 제로 슈거 라임향",
+     "n": 4,
+     "amount": 92580,
+     "order_days": 3,
+     "last": "2026-05-20",
+     "min_unit_price": 790.0,
+     "max_unit_price": 853.75,
+     "aliases": [
+      "롯데칠성음료 펩시 제로 슈거 라임향",
+      "펩시 제로 슈거 라임향",
+      "펩시 콜라 제로 슈거 라임향 제로 카페인"
+     ]
+    },
+    {
+     "group": "탐사수 무라벨",
+     "n": 2,
+     "amount": 13580,
+     "order_days": 2,
+     "last": "2026-04-02",
+     "min_unit_price": 565.83,
+     "max_unit_price": 565.83,
+     "aliases": [
+      "탐사수 무라벨"
+     ]
+    }
+   ]
+  },
+  {
+   "from": "2024-11-03",
+   "to": "2026-05-31",
+   "status": "all",
+   "rows": 19,
+   "total": 1435540,
+   "order_days": 10,
+   "granularity": "year",
+   "buckets": {
+    "2024": {
+     "n": 1,
+     "amount": 6790,
+     "future": false
+    },
+    "2025": {
+     "n": 13,
+     "amount": 298660,
+     "future": false
+    },
+    "2026": {
+     "n": 5,
+     "amount": 1130090,
+     "future": false
+    }
+   },
+   "by_category": {
+    "건강·의료": {
+     "n": 2,
+     "amount": 89500
+    },
+    "디지털·전자": {
+     "n": 2,
+     "amount": 1074000
+    },
+    "미분류": {
+     "n": 1,
+     "amount": 62280
+    },
+    "뷰티·위생": {
+     "n": 2,
+     "amount": 21260
+    },
+    "생활용품": {
+     "n": 1,
+     "amount": 10760
+    },
+    "식품·음료": {
+     "n": 9,
+     "amount": 134660
+    },
+    "운동·레저": {
+     "n": 2,
+     "amount": 43080
+    }
+   },
+   "products": [
+    {
+     "group": "펩시 제로 슈거 라임향",
+     "n": 4,
+     "amount": 92580,
+     "order_days": 3,
+     "last": "2026-05-20",
+     "min_unit_price": 790.0,
+     "max_unit_price": 853.75,
+     "aliases": [
+      "롯데칠성음료 펩시 제로 슈거 라임향",
+      "펩시 제로 슈거 라임향",
+      "펩시 콜라 제로 슈거 라임향 제로 카페인"
+     ]
+    },
+    {
+     "group": "탐사수 무라벨",
+     "n": 2,
+     "amount": 13580,
+     "order_days": 2,
+     "last": "2026-04-02",
+     "min_unit_price": 565.83,
+     "max_unit_price": 565.83,
+     "aliases": [
+      "탐사수 무라벨"
+     ]
+    }
+   ]
+  },
+  {
+   "from": "2024-11-03",
+   "to": "2026-05-31",
+   "status": "ret",
+   "rows": 2,
+   "total": 1074000,
+   "order_days": 2,
+   "granularity": "year",
+   "buckets": {
+    "2024": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2026": {
+     "n": 2,
+     "amount": 1074000,
+     "future": false
+    }
+   },
+   "by_category": {
+    "디지털·전자": {
+     "n": 2,
+     "amount": 1074000
+    }
+   },
+   "products": []
+  },
+  {
+   "from": "2025-01-01",
+   "to": "2026-06-30",
+   "status": "ok",
+   "rows": 16,
+   "total": 354750,
+   "order_days": 7,
+   "granularity": "month",
+   "buckets": {
+    "2025-01": {
+     "n": 1,
+     "amount": 20000,
+     "future": false
+    },
+    "2025-02": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-03": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-04": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-05": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-06": {
+     "n": 3,
+     "amount": 52180,
+     "future": false
+    },
+    "2025-07": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-08": {
+     "n": 6,
+     "amount": 111600,
+     "future": false
+    },
+    "2025-09": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-10": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-11": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-12": {
+     "n": 3,
+     "amount": 114880,
+     "future": false
+    },
+    "2026-01": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2026-02": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2026-03": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2026-04": {
+     "n": 1,
+     "amount": 6790,
+     "future": false
+    },
+    "2026-05": {
+     "n": 2,
+     "amount": 49300,
+     "future": false
+    },
+    "2026-06": {
+     "n": 0,
+     "amount": 0,
+     "future": true
+    }
+   },
+   "by_category": {
+    "건강·의료": {
+     "n": 2,
+     "amount": 89500
+    },
+    "미분류": {
+     "n": 1,
+     "amount": 62280
+    },
+    "뷰티·위생": {
+     "n": 2,
+     "amount": 21260
+    },
+    "생활용품": {
+     "n": 1,
+     "amount": 10760
+    },
+    "식품·음료": {
+     "n": 8,
+     "amount": 127870
+    },
+    "운동·레저": {
+     "n": 2,
+     "amount": 43080
+    }
+   },
+   "products": [
+    {
+     "group": "펩시 제로 슈거 라임향",
+     "n": 4,
+     "amount": 92580,
+     "order_days": 3,
+     "last": "2026-05-20",
+     "min_unit_price": 790.0,
+     "max_unit_price": 853.75,
+     "aliases": [
+      "롯데칠성음료 펩시 제로 슈거 라임향",
+      "펩시 제로 슈거 라임향",
+      "펩시 콜라 제로 슈거 라임향 제로 카페인"
+     ]
+    }
+   ]
+  },
+  {
+   "from": "2025-01-01",
+   "to": "2026-06-30",
+   "status": "all",
+   "rows": 18,
+   "total": 1428750,
+   "order_days": 9,
+   "granularity": "month",
+   "buckets": {
+    "2025-01": {
+     "n": 1,
+     "amount": 20000,
+     "future": false
+    },
+    "2025-02": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-03": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-04": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-05": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-06": {
+     "n": 3,
+     "amount": 52180,
+     "future": false
+    },
+    "2025-07": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-08": {
+     "n": 6,
+     "amount": 111600,
+     "future": false
+    },
+    "2025-09": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-10": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-11": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-12": {
+     "n": 3,
+     "amount": 114880,
+     "future": false
+    },
+    "2026-01": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2026-02": {
+     "n": 1,
+     "amount": 765000,
+     "future": false
+    },
+    "2026-03": {
+     "n": 1,
+     "amount": 309000,
+     "future": false
+    },
+    "2026-04": {
+     "n": 1,
+     "amount": 6790,
+     "future": false
+    },
+    "2026-05": {
+     "n": 2,
+     "amount": 49300,
+     "future": false
+    },
+    "2026-06": {
+     "n": 0,
+     "amount": 0,
+     "future": true
+    }
+   },
+   "by_category": {
+    "건강·의료": {
+     "n": 2,
+     "amount": 89500
+    },
+    "디지털·전자": {
+     "n": 2,
+     "amount": 1074000
+    },
+    "미분류": {
+     "n": 1,
+     "amount": 62280
+    },
+    "뷰티·위생": {
+     "n": 2,
+     "amount": 21260
+    },
+    "생활용품": {
+     "n": 1,
+     "amount": 10760
+    },
+    "식품·음료": {
+     "n": 8,
+     "amount": 127870
+    },
+    "운동·레저": {
+     "n": 2,
+     "amount": 43080
+    }
+   },
+   "products": [
+    {
+     "group": "펩시 제로 슈거 라임향",
+     "n": 4,
+     "amount": 92580,
+     "order_days": 3,
+     "last": "2026-05-20",
+     "min_unit_price": 790.0,
+     "max_unit_price": 853.75,
+     "aliases": [
+      "롯데칠성음료 펩시 제로 슈거 라임향",
+      "펩시 제로 슈거 라임향",
+      "펩시 콜라 제로 슈거 라임향 제로 카페인"
+     ]
+    }
+   ]
+  },
+  {
+   "from": "2025-01-01",
+   "to": "2026-06-30",
+   "status": "ret",
+   "rows": 2,
+   "total": 1074000,
+   "order_days": 2,
+   "granularity": "month",
+   "buckets": {
+    "2025-01": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-02": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-03": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-04": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-05": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-06": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-07": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-08": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-09": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-10": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-11": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2025-12": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2026-01": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2026-02": {
+     "n": 1,
+     "amount": 765000,
+     "future": false
+    },
+    "2026-03": {
+     "n": 1,
+     "amount": 309000,
+     "future": false
+    },
+    "2026-04": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2026-05": {
+     "n": 0,
+     "amount": 0,
+     "future": false
+    },
+    "2026-06": {
+     "n": 0,
+     "amount": 0,
+     "future": true
+    }
+   },
+   "by_category": {
+    "디지털·전자": {
+     "n": 2,
+     "amount": 1074000
+    }
+   },
+   "products": []
+  }
+ ]
+}

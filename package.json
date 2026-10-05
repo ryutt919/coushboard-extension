@@ -1,0 +1,45 @@
+{
+  "name": "coupang-ledger-ext",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "description": "쿠팡 주문내역을 가져와 이 브라우저 안에서만 분석하는 Chrome 확장",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --noEmit",
+    "lint": "eslint src tests scripts",
+    "test": "vitest run",
+    "test:ext": "node extension/test/adapter.test.mjs && node extension/test/engine.test.mjs",
+    "test:e2e": "npm run build && playwright test",
+    "pack": "npm run build && node scripts/pack-ext.mjs",
+    "privacy": "node scripts/privacy-scan.mjs",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run test:ext && npm run privacy"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-sans-kr": "^5.3.0",
+    "papaparse": "^5.7.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.4",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^10.11.0",
+    "fast-check": "^4.10.2",
+    "globals": "^17.13.0",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  }
+}

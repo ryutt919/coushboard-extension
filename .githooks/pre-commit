@@ -1,0 +1,2 @@
+#!/bin/sh
+node scripts/privacy-scan.mjs || exit 1
