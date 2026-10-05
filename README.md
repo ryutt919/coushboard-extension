@@ -6,9 +6,9 @@
 ![대시보드 개요](docs/images/dashboard.png)
 
 ## Quick Start
-| 1 | 2 | 3 | 5 |
-|---|---|---|---|
-|<img width="2496" height="1254" alt="image" src="https://github.com/user-attachments/assets/7b979e66-38b1-4dc6-829f-076a78d7649c" />|<img width="179" height="74" alt="image" src="https://github.com/user-attachments/assets/42a4f21b-cfd8-4c3d-8cc6-0ea7e4f9c3b8" />|<img width="368" height="268" alt="image" src="https://github.com/user-attachments/assets/fdb76843-4c5e-4e4f-9315-5e18feaf2619" />| <img width="243" height="254" alt="image" src="https://github.com/user-attachments/assets/1926e54c-54b8-491a-83ef-cd94e299f5a8" />
+| 1 | 3 | 5 |
+|---|---|---|
+|<img width="2496" height="1254" alt="image" src="https://github.com/user-attachments/assets/7b979e66-38b1-4dc6-829f-076a78d7649c" /><img width="368" height="268" alt="image" src="https://github.com/user-attachments/assets/fdb76843-4c5e-4e4f-9315-5e18feaf2619" />| <img width="243" height="254" alt="image" src="https://github.com/user-attachments/assets/1926e54c-54b8-491a-83ef-cd94e299f5a8" />
 |
 
 1. 현재 화면 우측의 Releases에서 최신 `coushboard-extension-v*.zip`을 내려받아 압축을 풂.
