@@ -10,7 +10,7 @@ if (!existsSync(resolve(ext, 'app/extension.html'))) throw new Error('app/ Ïù¥ Ï
 
 const { version } = JSON.parse(readFileSync(resolve(ext, 'manifest.json'), 'utf-8'))
 const stage = resolve(root, 'release/stage')
-const out = resolve(root, `release/coupang-ledger-ext-v${version}.zip`)
+const out = resolve(root, `release/coushboard-extension-v${version}.zip`)
 rmSync(resolve(root, 'release'), { recursive: true, force: true })
 mkdirSync(stage, { recursive: true })
 for (const f of ['manifest.json', 'background.js', 'content', 'lib', 'app']) cpSync(resolve(ext, f), resolve(stage, f), { recursive: true })

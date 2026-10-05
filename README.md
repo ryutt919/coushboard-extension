@@ -23,7 +23,7 @@
 
 ## Quick Start
 
-1. Releases에서 `coupang-ledger-ext-v0.2.0.zip`을 내려받아 압축을 풂.
+1. Releases에서 `coushboard-extension-v0.2.0.zip`을 내려받아 압축을 풂.
 2. `chrome://extensions`를 열고 **개발자 모드**를 켬.
 3. **압축해제된 확장 프로그램을 로드합니다**를 눌러 압축 푼 폴더를 선택함.
 4. 쿠팡에 로그인함.
